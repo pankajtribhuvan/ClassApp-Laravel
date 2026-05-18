@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\InquiryController;
-
+use App\Http\Controllers\Api\StudentController;
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -11,6 +11,11 @@ Route::post('/inquiries', [InquiryController::class, 'store']);
 Route::get('/inquiries', [InquiryController::class, 'index']);
 Route::put('/inquiries/{id}', [InquiryController::class, 'update']);
 Route::delete('/inquiries/{id}', [InquiryController::class, 'destroy']);
+
+
+Route::post('/students', [StudentController::class, 'store']);
+Route::get('/students', [StudentController::class, 'index']);
+Route::get('/admitted-inquiries',[StudentController::class,'admittedInquiryIds']);
 
 
 /*
