@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
@@ -38,122 +39,363 @@ class StudentController extends Controller
     | STORE STUDENT
     |--------------------------------------------------------------------------
     */
-public function store(Request $request)
-{
-    $validated = $request->validate([
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
 
-        'full_name' => 'required',
+            'full_name' => 'required',
 
-        'mobile' => 'required',
+            'mobile' => 'required',
 
-        'admission_date' => 'required',
-    ]);
+            'admission_date' => 'required',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | STUDENT PHOTO
+        |--------------------------------------------------------------------------
+        */
+
+        $studentPhotoPath = null;
+
+        if ($request->hasFile('student_photo')) {
+
+            $studentPhotoPath =
+                $request->file('student_photo')
+                    ->store(
+                        'students',
+                        'public'
+                    );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | AADHAR PHOTO
+        |--------------------------------------------------------------------------
+        */
+
+        $aadharPhotoPath = null;
+
+        if ($request->hasFile('aadhar_photo')) {
+
+            $aadharPhotoPath =
+                $request->file('aadhar_photo')
+                    ->store(
+                        'students',
+                        'public'
+                    );
+        }
+        /*
+        |--------------------------------------------------------------------------
+        | SAVE STUDENT
+        |--------------------------------------------------------------------------
+        */
+
+        $student = Student::create([
+
+        'inquiry_id' =>
+        $request->inquiry_id,
+
+            'full_name' =>
+                $request->full_name,
+
+            'mobile' =>
+                $request->mobile,
+
+            'whatsapp' =>
+                $request->whatsapp,
+
+            'email' =>
+                $request->email,
+
+            'college_school' =>
+                $request->college_school,
+
+            'current_class' =>
+                $request->current_class,
+
+            'interested_courses' =>
+                json_decode(
+                    $request->interested_courses,
+                    true
+                ),
+
+            'referred_by' =>
+                $request->referred_by,
+
+            'inquiry_date' =>
+                $request->inquiry_date,
+
+            'parent_phone' =>
+                $request->parent_phone,
+
+            'father_occupation' =>
+                $request->father_occupation,
+
+            'student_photo' =>
+                $studentPhotoPath,
+
+            'aadhar_photo' =>
+                $aadharPhotoPath,
+
+            'admission_date' =>
+                $request->admission_date,
+
+            'status' =>
+                $request->status ?? 'active',
+        ]);
+
+        return response()->json([
+
+            'success' => true,
+
+            'message' =>
+                'Student admitted successfully',
+
+            'data' => $student
+
+        ], 201);
+    }
 
     /*
-    |--------------------------------------------------------------------------
-    | STUDENT PHOTO
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| DELETE STUDENT
+|--------------------------------------------------------------------------
+*/
 
-    $studentPhotoPath = null;
+    public function destroy($uuid)
+    {
+        try {
 
-    if ($request->hasFile('student_photo')) {
+            $student = Student::where(
+                'uuid',
+                $uuid
+            )->first();
+
+            if (!$student) {
+
+                return response()->json([
+
+                    'success' => false,
+
+                    'message' => 'Student not found'
+
+                ], 404);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | DELETE STUDENT PHOTO
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $student->student_photo &&
+                Storage::disk('public')->exists(
+                    $student->student_photo
+                )
+            ) {
+
+                Storage::disk('public')->delete(
+                    $student->student_photo
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | DELETE AADHAR PHOTO
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $student->aadhar_photo &&
+                Storage::disk('public')->exists(
+                    $student->aadhar_photo
+                )
+            ) {
+
+                Storage::disk('public')->delete(
+                    $student->aadhar_photo
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | DELETE STUDENT
+            |--------------------------------------------------------------------------
+            */
+
+            $student->delete();
+
+            return response()->json([
+
+                'success' => true,
+
+                'message' =>
+                    'Student deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage()
+
+            ], 500);
+        }
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| UPDATE STUDENT
+|--------------------------------------------------------------------------
+*/
+
+    public function update(Request $request,$uuid)
+    {
+        $student = Student::where(
+            'uuid',
+            $uuid
+        )->first();
+
+        if (!$student) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => 'Student not found'
+
+            ], 404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STUDENT PHOTO
+        |--------------------------------------------------------------------------
+        */
 
         $studentPhotoPath =
-            $request->file('student_photo')
-                ->store(
-                    'students',
-                    'public'
+            $student->student_photo;
+
+        if ($request->hasFile(
+            'student_photo'
+        )) {
+
+            if (
+                $student->student_photo &&
+                Storage::disk('public')->exists(
+                    $student->student_photo
+                )
+            ) {
+
+                Storage::disk('public')->delete(
+                    $student->student_photo
                 );
-    }
+            }
 
-    /*
-    |--------------------------------------------------------------------------
-    | AADHAR PHOTO
-    |--------------------------------------------------------------------------
-    */
+            $studentPhotoPath =
+                $request->file('student_photo')
+                    ->store(
+                        'students',
+                        'public'
+                    );
+        }
 
-    $aadharPhotoPath = null;
-
-    if ($request->hasFile('aadhar_photo')) {
+        /*
+        |--------------------------------------------------------------------------
+        | AADHAR PHOTO
+        |--------------------------------------------------------------------------
+        */
 
         $aadharPhotoPath =
-            $request->file('aadhar_photo')
-                ->store(
-                    'students',
-                    'public'
+            $student->aadhar_photo;
+
+        if ($request->hasFile(
+            'aadhar_photo'
+        )) {
+
+            if (
+                $student->aadhar_photo &&
+                Storage::disk('public')->exists(
+                    $student->aadhar_photo
+                )
+            ) {
+
+                Storage::disk('public')->delete(
+                    $student->aadhar_photo
                 );
+            }
+
+            $aadharPhotoPath =
+                $request->file('aadhar_photo')
+                    ->store(
+                        'students',
+                        'public'
+                    );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE
+        |--------------------------------------------------------------------------
+        */
+
+        $student->update([
+
+            'full_name' =>
+                $request->full_name,
+
+            'mobile' =>
+                $request->mobile,
+
+            'whatsapp' =>
+                $request->whatsapp,
+
+            'email' =>
+                $request->email,
+
+            'college_school' =>
+                $request->college_school,
+
+            'current_class' =>
+                $request->current_class,
+
+            'interested_courses' =>
+                json_decode(
+                    $request->interested_courses,
+                    true
+                ),
+
+            'referred_by' =>
+                $request->referred_by,
+
+            'parent_phone' =>
+                $request->parent_phone,
+
+            'father_occupation' =>
+                $request->father_occupation,
+
+            'student_photo' =>
+                $studentPhotoPath,
+
+            'aadhar_photo' =>
+                $aadharPhotoPath,
+
+            'status' =>
+                $request->status,
+        ]);
+
+        return response()->json([
+
+            'success' => true,
+
+            'message' =>
+                'Student updated successfully',
+
+            'data' => $student
+        ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE STUDENT
-    |--------------------------------------------------------------------------
-    */
-
-    $student = Student::create([
-
-    'inquiry_id' =>
-    $request->inquiry_id,
-
-        'full_name' =>
-            $request->full_name,
-
-        'mobile' =>
-            $request->mobile,
-
-        'whatsapp' =>
-            $request->whatsapp,
-
-        'email' =>
-            $request->email,
-
-        'college_school' =>
-            $request->college_school,
-
-        'current_class' =>
-            $request->current_class,
-
-        'interested_courses' =>
-            json_decode(
-                $request->interested_courses,
-                true
-            ),
-
-        'referred_by' =>
-            $request->referred_by,
-
-        'inquiry_date' =>
-            $request->inquiry_date,
-
-        'parent_phone' =>
-            $request->parent_phone,
-
-        'father_occupation' =>
-            $request->father_occupation,
-
-        'student_photo' =>
-            $studentPhotoPath,
-
-        'aadhar_photo' =>
-            $aadharPhotoPath,
-
-        'admission_date' =>
-            $request->admission_date,
-
-        'status' =>
-            $request->status ?? 'active',
-    ]);
-
-    return response()->json([
-
-        'success' => true,
-
-        'message' =>
-            'Student admitted successfully',
-
-        'data' => $student
-
-    ], 201);
-}
 }

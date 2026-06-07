@@ -16,6 +16,8 @@ Route::delete('/inquiries/{id}', [InquiryController::class, 'destroy']);
 Route::post('/students', [StudentController::class, 'store']);
 Route::get('/students', [StudentController::class, 'index']);
 Route::get('/admitted-inquiries',[StudentController::class,'admittedInquiryIds']);
+Route::delete('/students/{uuid}',[StudentController::class, 'destroy']);
+Route::post('/students/update/{uuid}',[StudentController::class, 'update']);
 
 
 /*
