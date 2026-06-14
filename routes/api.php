@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\InquiryController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\TeacherController;
+
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -59,3 +61,30 @@ Route::prefix('v1')->group(function () {
 Now your endpoint will be accessible at http://your-server-domain/api/v1/inquiries
 
 */
+//////////////////////////////
+// TEACHER ROUTES
+//////////////////////////////
+Route::get(
+    '/teachers',
+    [TeacherController::class, 'index']
+);
+
+Route::post(
+    '/teachers',
+    [TeacherController::class, 'store']
+);
+
+Route::get(
+    '/teachers/{uuid}',
+    [TeacherController::class, 'show']
+);
+
+Route::put(
+    '/teachers/{uuid}',
+    [TeacherController::class, 'update']
+);
+
+Route::delete(
+    '/teachers/{uuid}',
+    [TeacherController::class, 'destroy']
+);
