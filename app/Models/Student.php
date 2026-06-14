@@ -43,7 +43,7 @@ class Student extends Model
 
         'current_class',
 
-        'interested_courses',
+        // 'interested_courses',
 
         'referred_by',
 
@@ -60,6 +60,17 @@ class Student extends Model
         'admission_date',
 
         'status',
+
+        'course_uuid',
+'course_name',
+
+'total_fees',
+'paid_fees',
+'balance_fees',
+
+'installments',
+
+'admission_no',
     ];
 
     /*

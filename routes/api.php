@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\InquiryController;
 use App\Http\Controllers\Api\StudentController;
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\PaymentController;
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -18,7 +20,32 @@ Route::get('/students', [StudentController::class, 'index']);
 Route::get('/admitted-inquiries',[StudentController::class,'admittedInquiryIds']);
 Route::delete('/students/{uuid}',[StudentController::class, 'destroy']);
 Route::post('/students/update/{uuid}',[StudentController::class, 'update']);
+Route::get('/students/{uuid}', [StudentController::class, 'show']);
 
+
+Route::get('/courses',
+    [CourseController::class,'index']);
+
+Route::post('/courses',
+    [CourseController::class,'store']);
+
+Route::post('/courses/update/{uuid}',
+    [CourseController::class,'update']);
+
+Route::delete('/courses/{uuid}',
+    [CourseController::class,'destroy']);
+
+
+
+Route::post(
+    '/payments',
+    [PaymentController::class, 'store']
+);
+
+Route::get(
+    '/payments/{studentUuid}',
+    [PaymentController::class, 'history']
+);
 
 /*
 // Grouping features under prefix for clean api versioning defaults

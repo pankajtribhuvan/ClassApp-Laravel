@@ -48,6 +48,8 @@ class StudentController extends Controller
             'mobile' => 'required',
 
             'admission_date' => 'required',
+
+            
         ]);
 
         /*
@@ -114,11 +116,11 @@ class StudentController extends Controller
             'current_class' =>
                 $request->current_class,
 
-            'interested_courses' =>
-                json_decode(
-                    $request->interested_courses,
-                    true
-                ),
+            // 'interested_courses' =>
+            //     json_decode(
+            //         $request->interested_courses,
+            //         true
+            //     ),
 
             'referred_by' =>
                 $request->referred_by,
@@ -141,6 +143,29 @@ class StudentController extends Controller
             'admission_date' =>
                 $request->admission_date,
 
+                'course_uuid' =>
+    $request->course_uuid,
+
+'course_name' =>
+    $request->course_name,
+
+'total_fees' =>
+    $request->total_fees ?? 0,
+
+'paid_fees' =>
+    $request->paid_fees ?? 0,
+
+'balance_fees' =>
+    $request->balance_fees ?? 0,
+
+
+
+'installments' =>
+    $request->installments ?? 1,
+
+'admission_no' =>
+    $request->admission_no,
+    
             'status' =>
                 $request->status ?? 'active',
         ]);
@@ -363,11 +388,11 @@ class StudentController extends Controller
             'current_class' =>
                 $request->current_class,
 
-            'interested_courses' =>
-                json_decode(
-                    $request->interested_courses,
-                    true
-                ),
+            // 'interested_courses' =>
+            //     json_decode(
+            //         $request->interested_courses,
+            //         true
+            //     ),
 
             'referred_by' =>
                 $request->referred_by,
@@ -384,9 +409,30 @@ class StudentController extends Controller
             'aadhar_photo' =>
                 $aadharPhotoPath,
 
-            'status' =>
-                $request->status,
-        ]);
+                'course_uuid' =>
+                $request->course_uuid,
+
+            'course_name' =>
+                $request->course_name,
+
+            'total_fees' =>
+                $request->total_fees ?? 0,
+
+            'paid_fees' =>
+                $request->paid_fees ?? 0,
+
+            'balance_fees' =>
+                $request->balance_fees ?? 0,
+
+            'installments' =>
+                $request->installments ?? 1,
+
+            'admission_no' =>
+                $request->admission_no,
+
+                        'status' =>
+                            $request->status,
+                    ]);
 
         return response()->json([
 
@@ -395,6 +441,19 @@ class StudentController extends Controller
             'message' =>
                 'Student updated successfully',
 
+            'data' => $student
+        ]);
+    }
+
+    public function show($uuid)
+    {
+        $student = Student::where(
+            'uuid',
+            $uuid
+        )->first();
+
+        return response()->json([
+            'success' => true,
             'data' => $student
         ]);
     }
