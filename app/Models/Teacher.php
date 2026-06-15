@@ -39,4 +39,11 @@ class Teacher extends Model
 
         'salary' => 'decimal:2',
     ];
+
+    public function batches()
+    {
+        return $this->hasMany(
+            Batch::class
+        );
+    }
 }

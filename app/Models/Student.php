@@ -102,4 +102,16 @@ class Student extends Model
                 (string) Str::uuid();
         });
     }
+
+    public function batches()
+{
+    return $this->belongsToMany(
+        Batch::class,
+        'batch_students',
+        'student_uuid',
+        'batch_uuid',
+        'uuid',
+        'uuid'
+    );
+}
 }

@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TeacherController;
-
+use App\Http\Controllers\Api\BatchController;
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -87,4 +87,45 @@ Route::put(
 Route::delete(
     '/teachers/{uuid}',
     [TeacherController::class, 'destroy']
+);
+
+/////////////////
+// BATCH API 
+////////////////
+
+Route::get(
+    '/batches',
+    [BatchController::class, 'index']
+);
+
+Route::post(
+    '/batches',
+    [BatchController::class, 'store']
+);
+
+Route::get(
+    '/batches/{uuid}',
+    [BatchController::class, 'show']
+);
+
+Route::put(
+    '/batches/{uuid}',
+    [BatchController::class, 'update']
+);
+
+Route::delete(
+    '/batches/{uuid}',
+    [BatchController::class, 'destroy']
+);
+
+Route::post(
+    '/batches/{uuid}/assign-students',
+    [BatchController::class,
+     'assignStudents']
+);
+
+Route::get(
+    '/batches/{uuid}/students',
+    [BatchController::class,
+     'assignedStudents']
 );
