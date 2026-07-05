@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\BatchController;
+use App\Http\Controllers\Api\AttendanceController;
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -128,4 +129,38 @@ Route::get(
     '/batches/{uuid}/students',
     [BatchController::class,
      'assignedStudents']
+);
+
+
+// Attedance API
+
+
+Route::post(
+    '/attendance/save',
+    [AttendanceController::class, 'saveAttendance']
+);
+
+Route::get(
+    '/attendance',
+    [AttendanceController::class, 'getAttendance']
+);
+
+Route::get(
+    '/attendance/calendar',
+    [AttendanceController::class, 'calendar']
+);
+
+Route::get(
+    '/attendance/report',
+    [AttendanceController::class, 'report']
+);
+
+Route::get(
+    '/attendance/student-calendar',
+    [AttendanceController::class, 'studentCalendar']
+);
+
+Route::get(
+    '/attendance/monthly-register',
+    [AttendanceController::class, 'monthlyRegister']
 );
