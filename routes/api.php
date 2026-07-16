@@ -164,3 +164,4 @@ Route::get(
     '/attendance/monthly-register',
     [AttendanceController::class, 'monthlyRegister']
 );
+
