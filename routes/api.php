@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\BatchController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\DashboardController;
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -49,6 +50,18 @@ Route::get(
     '/payments/{studentUuid}',
     [PaymentController::class, 'history']
 );
+
+Route::put(
+    '/payments/{uuid}', 
+    [PaymentController::class, 'update']
+);
+
+Route::delete(
+    '/payments/{uuid}', 
+    [PaymentController::class, 'destroy']
+);
+
+Route::get('/dashboard', [DashboardController::class, 'index']);
 
 /*
 // Grouping features under prefix for clean api versioning defaults
