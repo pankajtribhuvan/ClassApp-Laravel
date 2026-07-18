@@ -10,6 +10,10 @@ use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\BatchController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DueCollectionController;
+
+Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
+
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -60,6 +64,9 @@ Route::delete(
     '/payments/{uuid}', 
     [PaymentController::class, 'destroy']
 );
+
+
+
 
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
