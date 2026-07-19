@@ -11,8 +11,8 @@ use App\Http\Controllers\Api\BatchController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DueCollectionController;
+use App\Http\Controllers\Api\PaymentReportController;
 
-Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
 
 
 Route::get('/products', [ProductController::class, 'index']);
@@ -45,27 +45,47 @@ Route::delete('/courses/{uuid}',
 
 
 
-Route::post(
-    '/payments',
-    [PaymentController::class, 'store']
-);
+// Route::post(
+//     '/payments',
+//     [PaymentController::class, 'store']
+// );
 
-Route::get(
-    '/payments/{studentUuid}',
-    [PaymentController::class, 'history']
-);
+// Route::get(
+//     '/payments/{studentUuid}',
+//     [PaymentController::class, 'history']
+// );
 
-Route::put(
-    '/payments/{uuid}', 
-    [PaymentController::class, 'update']
-);
+// Route::put(
+//     '/payments/{uuid}', 
+//     [PaymentController::class, 'update']
+// );
 
-Route::delete(
-    '/payments/{uuid}', 
-    [PaymentController::class, 'destroy']
-);
+// Route::delete(
+//     '/payments/{uuid}', 
+//     [PaymentController::class, 'destroy']
+// );
 
 
+// Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
+
+// Route::get('/payment-reports', [PaymentReportController::class, 'index']);
+
+Route::post('/payments', [PaymentController::class, 'store']);
+
+Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
+
+Route::put('/payments/{uuid}', [PaymentController::class, 'update']);
+
+Route::delete('/payments/{uuid}', [PaymentController::class, 'destroy']);
+
+Route::get('/payments/{studentUuid}', [PaymentController::class, 'history']);
+
+Route::get('/payment-reports', [PaymentReportController::class, 'index']);
+
+Route::get('/payment-reports/pdf', [PaymentReportController::class, 'downloadPdf']);
+
+Route::get('/payment-reports/excel', [PaymentReportController::class, 'exportExcel']);
+// ----------------------------------
 
 
 Route::get('/dashboard', [DashboardController::class, 'index']);
