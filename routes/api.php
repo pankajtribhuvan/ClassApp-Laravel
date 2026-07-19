@@ -30,7 +30,9 @@ Route::delete('/students/{uuid}',[StudentController::class, 'destroy']);
 Route::post('/students/update/{uuid}',[StudentController::class, 'update']);
 Route::get('/students/{uuid}', [StudentController::class, 'show']);
 
+Route::patch('/students/{uuid}/status',[StudentController::class, 'updateStatus']);
 
+// --------------------
 Route::get('/courses',
     [CourseController::class,'index']);
 

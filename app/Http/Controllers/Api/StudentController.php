@@ -427,6 +427,7 @@ class StudentController extends Controller
             'installments' =>
                 $request->installments ?? 1,
 
+ 
             'admission_no' =>
                 $request->admission_no,
 
@@ -457,4 +458,32 @@ class StudentController extends Controller
             'data' => $student
         ]);
     }
+
+
+
+    public function updateStatus(Request $request, $uuid)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:active,completed,archived,cancelled',
+        ]);
+
+        $student = Student::where('uuid', $uuid)->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found.',
+            ], 404);
+        }
+
+        $student->status = $validated['status'];
+        $student->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student status updated successfully.',
+            'data' => $student,
+        ]);
+    }
+
 }
