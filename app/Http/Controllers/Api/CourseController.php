@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Models\Student;
 
 class CourseController extends Controller
 {
@@ -143,38 +145,37 @@ public function update(Request $request, $uuid)
         'data' => $course
     ]);
 }
-
-    /*
+/*
     |--------------------------------------------------------------------------
-    | DELETE COURSE
+    | DELETE COURSE WITH STUDENT DEPENDENCY CHECK
+    |--------------------------------------------------------------------------
+    */
+/*
+    |--------------------------------------------------------------------------
+    | DELETE COURSE WITH STUDENT ENROLLMENT CHECK (STRICT BLOCK)
     |--------------------------------------------------------------------------
     */
 
     public function destroy($uuid)
-    {
-        $course = Course::where(
-            'uuid',
-            $uuid
-        )->first();
+{
+    $course = Course::where('uuid', $uuid)->firstOrFail();
 
-        if (!$course) {
+    $studentCount = Student::where('course_uuid', $uuid)->count();
 
-            return response()->json([
-
-                'success' => false,
-
-                'message' => 'Course not found'
-
-            ], 404);
-        }
-
-        $course->delete();
-
+    if ($studentCount > 0) {
         return response()->json([
-
-            'success' => true,
-
-            'message' => 'Course deleted successfully'
-        ]);
+            'success' => false,
+            'message' => 'Cannot delete course. Students are enrolled in this course.'
+        ], 400);
     }
+
+    $course->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Course deleted successfully.'
+    ]);
+}
+
+
 }
