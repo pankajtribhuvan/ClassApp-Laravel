@@ -248,6 +248,19 @@ class BatchController extends Controller
 public function assignedStudents($uuid)
 {
     $students = DB::table('batch_students')
+    ->join(
+        'students',
+        'batch_students.student_uuid',
+        '=',
+        'students.uuid'
+    )
+    ->where('batch_students.batch_uuid', $uuid)
+    ->where('students.status', 'active')
+    ->select('students.*')
+    ->get();
+    
+    /*
+    $students = DB::table('batch_students')
         ->join(
             'students',
             'batch_students.student_uuid',
@@ -262,10 +275,11 @@ public function assignedStudents($uuid)
             'students.*'
         )
         ->get();
-
+    */
+        
     return response()->json([
         'success' => true,
         'data' => $students
     ]);
-}
+    }
 }

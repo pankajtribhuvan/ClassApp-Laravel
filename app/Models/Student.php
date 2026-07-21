@@ -104,14 +104,19 @@ class Student extends Model
     }
 
     public function batches()
-{
-    return $this->belongsToMany(
-        Batch::class,
-        'batch_students',
-        'student_uuid',
-        'batch_uuid',
-        'uuid',
-        'uuid'
-    );
-}
+    {
+        return $this->belongsToMany(
+            Batch::class,
+            'batch_students',
+            'student_uuid',
+            'batch_uuid',
+            'uuid',
+            'uuid'
+        );
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }

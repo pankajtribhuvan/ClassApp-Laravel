@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DueCollectionController;
 use App\Http\Controllers\Api\PaymentReportController;
-
+use App\Http\Controllers\Api\InstituteProfileController;
 
 
 Route::get('/products', [ProductController::class, 'index']);
@@ -21,16 +21,18 @@ Route::post('/inquiries', [InquiryController::class, 'store']);
 Route::get('/inquiries', [InquiryController::class, 'index']);
 Route::put('/inquiries/{id}', [InquiryController::class, 'update']);
 Route::delete('/inquiries/{id}', [InquiryController::class, 'destroy']);
-
+// -----------------------------------
 
 Route::post('/students', [StudentController::class, 'store']);
 Route::get('/students', [StudentController::class, 'index']);
+Route::get('/students/active',[StudentController::class, 'activeStudents']);  //show only active students.
 Route::get('/admitted-inquiries',[StudentController::class,'admittedInquiryIds']);
 Route::delete('/students/{uuid}',[StudentController::class, 'destroy']);
 Route::post('/students/update/{uuid}',[StudentController::class, 'update']);
 Route::get('/students/{uuid}', [StudentController::class, 'show']);
 
 Route::patch('/students/{uuid}/status',[StudentController::class, 'updateStatus']);
+
 
 // --------------------
 Route::get('/courses',
@@ -45,32 +47,7 @@ Route::post('/courses/update/{uuid}',
 Route::delete('/courses/{uuid}',
     [CourseController::class,'destroy']);
 
-
-
-// Route::post(
-//     '/payments',
-//     [PaymentController::class, 'store']
-// );
-
-// Route::get(
-//     '/payments/{studentUuid}',
-//     [PaymentController::class, 'history']
-// );
-
-// Route::put(
-//     '/payments/{uuid}', 
-//     [PaymentController::class, 'update']
-// );
-
-// Route::delete(
-//     '/payments/{uuid}', 
-//     [PaymentController::class, 'destroy']
-// );
-
-
-// Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
-
-// Route::get('/payment-reports', [PaymentReportController::class, 'index']);
+// ---------------------------
 
 Route::post('/payments', [PaymentController::class, 'store']);
 
@@ -207,3 +184,21 @@ Route::get(
     [AttendanceController::class, 'monthlyRegister']
 );
 
+// ----------------------------------
+
+
+
+Route::get(
+    '/profile',
+    [InstituteProfileController::class,'index']
+);
+
+Route::post(
+    '/profile',
+    [InstituteProfileController::class,'update']
+);
+
+Route::post(
+    '/profile/logo',
+    [InstituteProfileController::class,'uploadLogo']
+);

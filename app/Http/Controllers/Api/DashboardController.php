@@ -26,7 +26,12 @@ class DashboardController extends Controller
         | Row 1: Structural Volume Benchmarks
         |--------------------------------------------------------------------------
         */
-        $totalStudents = Student::count();
+        // $totalStudents = Student::count();
+        $totalStudents = Student::whereIn('status', [
+            'active',
+            'completed',
+            'archived'
+        ])->count();
         $totalInquiries = Inquiry::count();
 
         /*
@@ -34,9 +39,18 @@ class DashboardController extends Controller
         | Row 2: Monthly Run-Rate Performance Metrics
         |--------------------------------------------------------------------------
         */
-        $thisMonthAdmissions = Student::whereYear('admission_date', now()->year)
-            ->whereMonth('admission_date', now()->month)
-            ->count();
+        // $thisMonthAdmissions = Student::whereYear('admission_date', now()->year)
+        //     ->whereMonth('admission_date', now()->month)
+        //     ->count();
+
+        $thisMonthAdmissions = Student::whereIn('status', [
+            'active',
+            'completed',
+            'archived'
+        ])
+        ->whereYear('admission_date', now()->year)
+        ->whereMonth('admission_date', now()->month)
+        ->count();
 
         $thisMonthCollection = (double) Payment::whereYear('payment_date', now()->year)
             ->whereMonth('payment_date', now()->month)
@@ -47,8 +61,16 @@ class DashboardController extends Controller
         | Row 3: Weekly Dynamic Operational Momentum Indicators
         |--------------------------------------------------------------------------
         */
-        $lastWeekAdmissions = Student::whereBetween('admission_date', [$sevenDaysAgo, $today])
-            ->count();
+        // $lastWeekAdmissions = Student::whereBetween('admission_date', [$sevenDaysAgo, $today])
+            // ->count();
+    
+        $lastWeekAdmissions = Student::whereIn('status', [
+            'active',
+            'completed',
+            'archived'
+        ])
+        ->whereBetween('admission_date', [$sevenDaysAgo, $today])
+        ->count();
 
         $lastWeekCollection = (double) Payment::whereBetween('payment_date', [$sevenDaysAgo, $today])
             ->sum('amount');
@@ -58,7 +80,14 @@ class DashboardController extends Controller
         | Row 4: Today's High-Velocity Conversions
         |--------------------------------------------------------------------------
         */
-        $todayAdmissions = Student::where('admission_date', $today)->count();
+        // $todayAdmissions = Student::where('admission_date', $today)->count();
+        $todayAdmissions = Student::whereIn('status', [
+        'active',
+        'completed',
+        'archived'
+        ])
+        ->where('admission_date', $today)
+        ->count();
         $todayCollection = (double) Payment::where('payment_date', $today)->sum('amount');
 
         /*
@@ -66,9 +95,21 @@ class DashboardController extends Controller
         | Row 5: Financial Health Ledger Balances
         |--------------------------------------------------------------------------
         */
-        $totalFees = (double) Student::sum('total_fees');
-        $paidFees = (double) Student::sum('paid_fees');
-        $pendingFees = (double) Student::sum('balance_fees');
+        // $totalFees = (double) Student::sum('total_fees');
+        $totalFees = (double) Student::whereIn('status', [
+            'active',
+            'completed',
+            'archived'
+        ])->sum('total_fees');
+        // $paidFees = (double) Student::sum('paid_fees');
+        $paidFees = (double) Student::whereIn('status', [
+            'active',
+            'completed',
+            'archived'
+        ])->sum('paid_fees');
+        // $pendingFees = (double) Student::sum('balance_fees');
+        $pendingFees = (double) Student::where('status', 'active')
+        ->sum('balance_fees');
 
         /*
         |--------------------------------------------------------------------------
@@ -80,12 +121,18 @@ class DashboardController extends Controller
         $pendingAdmissions = Inquiry::whereNotIn('id', $admittedInquiryIds)->count();
 
         $dueToday = Student::where('next_due_date', $today)
+            ->where('status','active')
             ->where('balance_fees', '>', 0)
             ->count();
 
-        $overdueStudents = Student::where('next_due_date', '<', $today)
-            ->where('balance_fees', '>', 0)
-            ->count();
+        // $overdueStudents = Student::where('next_due_date', '<', $today)
+        //     ->where('balance_fees', '>', 0)
+        //     ->count();
+
+        $overdueStudents = Student::where('status', 'active')
+        ->where('next_due_date', '<', $today)
+        ->where('balance_fees', '>', 0)
+        ->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -106,15 +153,22 @@ class DashboardController extends Controller
                 'students.admission_no',
             ]);
 
-        $recentAdmissions = Student::latest('admission_date')
-            ->take(5)
-            ->get([
+        // $recentAdmissions = Student::latest('admission_date')
+        
+        $recentAdmissions = Student::whereIn('status', [
+        'active',
+        'completed',
+        'archived'
+        ])
+        ->latest('admission_date')
+        ->take(5)
+        ->get([
                 'uuid',
                 'full_name',
                 'course_name',
                 'admission_no',
                 'admission_date',
-            ]);
+        ]);
 
         /*
         |--------------------------------------------------------------------------

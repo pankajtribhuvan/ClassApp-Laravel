@@ -267,7 +267,7 @@ public function calendar(Request $request)
     |--------------------------------------------------------------------------
     */
 
-    // $totalStudents = \DB::table('batch_students')
+    
     $totalStudents = DB::table('batch_students')
         ->where(
             'batch_uuid',
@@ -447,6 +447,19 @@ public function report(Request $request)
 
         ->get();
 
+/*
+    $students = DB::table('batch_students')
+    ->join(
+        'students',
+        'batch_students.student_uuid',
+        '=',
+        'students.uuid'
+    )
+    ->where('batch_students.batch_uuid', $uuid)
+    // ->where('students.status', 'active')
+    ->select('students.*')
+    ->get();
+*/
 
     /*
     |--------------------------------------------------------------------------

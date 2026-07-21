@@ -27,6 +27,18 @@ class StudentController extends Controller
         ]);
     }
 
+    public function activeStudents()
+    {
+        $students = Student::active()
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $students,
+        ]);
+    }
+
 
     public function admittedInquiryIds()
     {
@@ -485,5 +497,7 @@ class StudentController extends Controller
             'data' => $student,
         ]);
     }
+
+    
 
 }
