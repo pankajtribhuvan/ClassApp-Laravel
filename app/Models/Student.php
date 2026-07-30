@@ -39,6 +39,8 @@ class Student extends Model
 
         'email',
 
+        'password',
+
         'college_school',
 
         'current_class',
@@ -73,6 +75,11 @@ class Student extends Model
 'admission_no',
     ];
 
+
+    protected $hidden = [
+    'password',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | TYPE CASTING
@@ -85,6 +92,7 @@ class Student extends Model
 
         'admission_date' => 'date',
     ];
+
 
     /*
     |--------------------------------------------------------------------------

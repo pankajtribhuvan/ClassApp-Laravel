@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
 {
@@ -33,11 +35,24 @@ class TeacherController extends Controller
 
 public function store(Request $request)
 {
+    // $request->validate([
+
+    //     'full_name' => 'required|string|max:255',
+
+    // 'mobile' => 'required',
+
+    // 'email' => [
+    //     'required',
+    //     'email',
+    //     Rule::unique('teachers', 'email')->ignore($teacher->id),
+    // ],
+
+    // ]);
+
     $request->validate([
-
-        'full_name' => 'required',
-
-        'mobile' => 'required',
+    'full_name' => 'required|string|max:255',
+    'mobile' => 'required',
+    'email' => 'required|email|unique:teachers,email',
     ]);
 
     $photoName = null;
@@ -54,6 +69,8 @@ public function store(Request $request)
             'public'
         );
     }
+
+
 
     $teacher = Teacher::create([
 
@@ -80,6 +97,9 @@ public function store(Request $request)
         'address' => $request->address,
 
         'status' => $request->status ?? 'active',
+
+        'password' => Hash::make('Teacher@123'),
+
     ]);
 
     return response()->json([
@@ -128,10 +148,7 @@ public function store(Request $request)
     |--------------------------------------------------------------------------
     */
 
-public function update(
-    Request $request,
-    $uuid
-) {
+public function update(Request $request,$uuid) {
 
     $teacher = Teacher::where(
         'uuid',
@@ -149,6 +166,17 @@ public function update(
     }
 
     $photoName = $teacher->photo;
+
+    $request->validate([
+    'full_name' => 'required|string|max:255',
+    'mobile' => 'required',
+    'email' => [
+        'required',
+        'email',
+        Rule::unique('teachers', 'email')->ignore($teacher->id),
+    ],
+    ]);
+
 
     if ($request->hasFile('photo')) {
 

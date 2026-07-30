@@ -18,6 +18,8 @@ class Teacher extends Model
 
         'email',
 
+        'password',
+
         'qualification',
 
         'specialization',
@@ -31,6 +33,15 @@ class Teacher extends Model
         'address',
 
         'status',
+
+        'last_login_at',
+    ];
+
+    protected $hidden = [
+
+        'password',
+
+        'remember_token',
     ];
 
     protected $casts = [
@@ -38,12 +49,12 @@ class Teacher extends Model
         'joining_date' => 'date',
 
         'salary' => 'decimal:2',
+
+        'last_login_at' => 'datetime',
     ];
 
     public function batches()
     {
-        return $this->hasMany(
-            Batch::class
-        );
+        return $this->hasMany(Batch::class);
     }
 }

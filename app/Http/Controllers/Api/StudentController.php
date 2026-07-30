@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
@@ -121,6 +122,8 @@ class StudentController extends Controller
 
             'email' =>
                 $request->email,
+
+            'password' => Hash::make('Student@123'),
 
             'college_school' =>
                 $request->college_school,

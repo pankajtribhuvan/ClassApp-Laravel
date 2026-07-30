@@ -13,7 +13,19 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DueCollectionController;
 use App\Http\Controllers\Api\PaymentReportController;
 use App\Http\Controllers\Api\InstituteProfileController;
+use App\Http\Controllers\Api\CredentialController;
 
+use App\Http\Controllers\Api\AdminAuthController;
+
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+
+    Route::get('/profile', [AdminAuthController::class, 'profile']);
+
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
+
+});
 
 Route::get('/products', [ProductController::class, 'index']);
 
@@ -37,6 +49,8 @@ Route::patch('/students/{uuid}/status',[StudentController::class, 'updateStatus'
 // --------------------
 Route::get('/courses',
     [CourseController::class,'index']);
+
+Route::get('/courses/active', [CourseController::class, 'activeCourses']);
 
 Route::post('/courses',
     [CourseController::class,'store']);
@@ -117,6 +131,8 @@ Route::get(
     '/batches',
     [BatchController::class, 'index']
 );
+
+
 
 Route::post(
     '/batches',
@@ -202,3 +218,13 @@ Route::post(
     '/profile/logo',
     [InstituteProfileController::class,'uploadLogo']
 );
+
+
+
+Route::prefix('credentials')->group(function () {
+
+    
+Route::post('/student/reset-password', [CredentialController::class, 'resetStudentPassword']);
+Route::post('/teacher/reset-password',[CredentialController::class, 'resetTeacherPassword']);
+
+});

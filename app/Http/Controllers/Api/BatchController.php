@@ -27,6 +27,7 @@ class BatchController extends Controller
         ]);
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | STORE BATCH

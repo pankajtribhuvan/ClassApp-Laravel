@@ -20,7 +20,7 @@ class CourseController extends Controller
     public function index()
     {
         $courses = Course::latest()->get();
-
+        
         return response()->json([
 
             'success' => true,
@@ -28,6 +28,18 @@ class CourseController extends Controller
             'data' => $courses
         ]);
     }
+
+    public function activeCourses()
+{
+    $courses = Course::where('status', 'active')
+        ->orderBy('course_name')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $courses
+    ]);
+}
 
     /*
     |--------------------------------------------------------------------------
