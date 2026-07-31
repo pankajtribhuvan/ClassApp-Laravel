@@ -57,6 +57,7 @@ class PaymentController extends Controller
                 &$payment
             ) {
 
+            $receiptNo = $this->generateReceiptNo();
                 $payment = Payment::create([
 
                     'uuid' => Str::uuid(),
@@ -65,7 +66,8 @@ class PaymentController extends Controller
 
                     'admission_no' => $student->admission_no,
 
-                    'receipt_no' => 'RCPT' . now()->format('YmdHis'),
+                    // 'receipt_no' => 'RCPT' . now()->format('YmdHis'),
+                    'receipt_no' => $receiptNo,
 
                     'amount' => $request->amount,
 
@@ -99,6 +101,36 @@ class PaymentController extends Controller
 
         }
     }
+
+    private function generateReceiptNo()
+    {
+        $prefix = sprintf(
+            'RCPT/%s',
+            now()->format('Y/m/d')
+        );
+
+        // $lastPayment = Payment::where('receipt_no', 'like', $prefix.'/%')
+        //     ->orderByDesc('id')
+        //     ->first();
+        $lastPayment = Payment::where('receipt_no', 'like', $prefix.'/%')
+        ->lockForUpdate()
+        ->orderByDesc('receipt_no')
+        ->first();
+
+        if ($lastPayment) {
+            $lastNumber = (int) substr($lastPayment->receipt_no, -4);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        return sprintf(
+            '%s/%04d',
+            $prefix,
+            $nextNumber
+        );
+    }
+
 
     /*
     |--------------------------------------------------------------------------

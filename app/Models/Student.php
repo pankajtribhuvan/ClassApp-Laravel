@@ -28,6 +28,7 @@ class Student extends Model
     protected $fillable = [
 
         'uuid',
+        'serial_no',
         
         'inquiry_id',
 

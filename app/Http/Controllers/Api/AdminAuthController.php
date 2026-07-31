@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+// use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminLoginRequest;
 use App\Models\User;
@@ -82,6 +83,34 @@ class AdminAuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Logged out successfully.',
+        ]);
+    }
+
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($request->current_password, $user->password)) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Current password is incorrect.'
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password changed successfully.'
         ]);
     }
 }

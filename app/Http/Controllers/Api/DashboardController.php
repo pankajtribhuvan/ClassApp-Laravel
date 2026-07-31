@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Inquiry;
 use App\Models\Payment;
@@ -10,138 +11,97 @@ use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
 {
-    /**
-     * Fetch actionable high-velocity insight aggregates for the institute dashboard.
-     *
-     * @return JsonResponse
-     */
     public function index(): JsonResponse
     {
         $today = now()->toDateString();
-        // Rolling 7-day retrospective snapshot tracking dates
-        $sevenDaysAgo = now()->subDays(6)->toDateString();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Row 1: Structural Volume Benchmarks
-        |--------------------------------------------------------------------------
-        */
-        // $totalStudents = Student::count();
-        $totalStudents = Student::whereIn('status', [
-            'active',
-            'completed',
-            'archived'
-        ])->count();
+        // ==========================
+        // Inquiry
+        // ==========================
+
         $totalInquiries = Inquiry::count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Row 2: Monthly Run-Rate Performance Metrics
-        |--------------------------------------------------------------------------
-        */
-        // $thisMonthAdmissions = Student::whereYear('admission_date', now()->year)
-        //     ->whereMonth('admission_date', now()->month)
-        //     ->count();
+        $monthlyCollections = collect();
 
-        $thisMonthAdmissions = Student::whereIn('status', [
+        for ($i = 5; $i >= 0; $i--) {
+
+            $date = Carbon::now()->subMonths($i);
+
+            $amount = Payment::whereYear('payment_date', $date->year)
+                ->whereMonth('payment_date', $date->month)
+                ->sum('amount');
+
+            $monthlyCollections->push([
+                'month' => $date->format('M'),
+                'amount' => (double) $amount,
+            ]);
+        }
+
+        $thisMonthInquiries = Inquiry::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->count();
+
+
+        // ==========================
+        // Students
+        // ==========================
+
+        $studentQuery = Student::whereIn('status', [
             'active',
             'completed',
-            'archived'
-        ])
-        ->whereYear('admission_date', now()->year)
-        ->whereMonth('admission_date', now()->month)
-        ->count();
+            'archived',
+        ]);
+
+        $totalStudents = (clone $studentQuery)->count();
+
+        $thisMonthAdmissions = (clone $studentQuery)
+            ->whereYear('admission_date', now()->year)
+            ->whereMonth('admission_date', now()->month)
+            ->count();
+
+        // ==========================
+        // Fees
+        // ==========================
+
+        $totalCollection = (clone $studentQuery)
+            ->sum('paid_fees');
 
         $thisMonthCollection = (double) Payment::whereYear('payment_date', now()->year)
             ->whereMonth('payment_date', now()->month)
             ->sum('amount');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Row 3: Weekly Dynamic Operational Momentum Indicators
-        |--------------------------------------------------------------------------
-        */
-        // $lastWeekAdmissions = Student::whereBetween('admission_date', [$sevenDaysAgo, $today])
-            // ->count();
-    
-        $lastWeekAdmissions = Student::whereIn('status', [
-            'active',
-            'completed',
-            'archived'
-        ])
-        ->whereBetween('admission_date', [$sevenDaysAgo, $today])
-        ->count();
+        $totalFees = (clone $studentQuery)
+            ->sum('total_fees');
 
-        $lastWeekCollection = (double) Payment::whereBetween('payment_date', [$sevenDaysAgo, $today])
-            ->sum('amount');
+        $pendingFees = Student::where('status', 'active')
+            ->sum('balance_fees');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Row 4: Today's High-Velocity Conversions
-        |--------------------------------------------------------------------------
-        */
-        // $todayAdmissions = Student::where('admission_date', $today)->count();
-        $todayAdmissions = Student::whereIn('status', [
-        'active',
-        'completed',
-        'archived'
-        ])
-        ->where('admission_date', $today)
-        ->count();
-        $todayCollection = (double) Payment::where('payment_date', $today)->sum('amount');
+        // ==========================
+        // Due Status
+        // ==========================
 
-        /*
-        |--------------------------------------------------------------------------
-        | Row 5: Financial Health Ledger Balances
-        |--------------------------------------------------------------------------
-        */
-        // $totalFees = (double) Student::sum('total_fees');
-        $totalFees = (double) Student::whereIn('status', [
-            'active',
-            'completed',
-            'archived'
-        ])->sum('total_fees');
-        // $paidFees = (double) Student::sum('paid_fees');
-        $paidFees = (double) Student::whereIn('status', [
-            'active',
-            'completed',
-            'archived'
-        ])->sum('paid_fees');
-        // $pendingFees = (double) Student::sum('balance_fees');
-        $pendingFees = (double) Student::where('status', 'active')
-        ->sum('balance_fees');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Actionable Operational Alerts (Hero Cards & Risk Mitigation)
-        |--------------------------------------------------------------------------
-        */
-        // Extract IDs of inquiries that safely crossed over into admissions matrix
-        $admittedInquiryIds = Student::whereNotNull('inquiry_id')->pluck('inquiry_id');
-        $pendingAdmissions = Inquiry::whereNotIn('id', $admittedInquiryIds)->count();
-
-        $dueToday = Student::where('next_due_date', $today)
-            ->where('status','active')
+        $dueToday = Student::where('status', 'active')
+            ->where('next_due_date', $today)
             ->where('balance_fees', '>', 0)
             ->count();
 
-        // $overdueStudents = Student::where('next_due_date', '<', $today)
-        //     ->where('balance_fees', '>', 0)
-        //     ->count();
-
         $overdueStudents = Student::where('status', 'active')
-        ->where('next_due_date', '<', $today)
-        ->where('balance_fees', '>', 0)
-        ->count();
+            ->where('next_due_date', '<', $today)
+            ->where('balance_fees', '>', 0)
+            ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Deep Relational Historical Logs (Queued Feeds)
-        |--------------------------------------------------------------------------
-        */
-        $recentPayments = Payment::join('students', 'students.uuid', '=', 'payments.student_uuid')
-            ->orderBy('payments.payment_date', 'desc')
-            ->orderBy('payments.created_at', 'desc')
+        // ==========================
+        // Recent Payments
+        // ==========================
+
+        $recentPayments = Payment::join(
+                'students',
+                'students.uuid',
+                '=',
+                'payments.student_uuid'
+            )
+            ->orderByDesc('payments.payment_date')
+            ->orderByDesc('payments.created_at')
             ->take(5)
             ->get([
                 'payments.uuid',
@@ -153,59 +113,65 @@ class DashboardController extends Controller
                 'students.admission_no',
             ]);
 
-        // $recentAdmissions = Student::latest('admission_date')
-        
-        $recentAdmissions = Student::whereIn('status', [
-        'active',
-        'completed',
-        'archived'
-        ])
+
+       // ==========================
+        // Course Distribution for Last 6 Months (Pie Chart)
+        // ==========================
+
+        $courseDistribution = (clone $studentQuery)
+            ->select('course_name', DB::raw('count(*) as total'))
+            ->whereNotNull('course_name')
+            ->where('admission_date', '>=', now()->subMonths(6)->startOfMonth())
+            ->groupBy('course_name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'course_name' => $item->course_name,
+                    'count' => (int) $item->total,
+                ];
+            });
+            
+        // ==========================
+        // Recent Admissions
+        // ==========================
+
+       $recentAdmissions = (clone $studentQuery)
         ->latest('admission_date')
         ->take(5)
-        ->get([
-                'uuid',
-                'full_name',
-                'course_name',
-                'admission_no',
-                'admission_date',
-        ]);
+        ->get()
+        ->map(function ($student) {
+            return [
+                'uuid' => $student->uuid,
+                'full_name' => $student->full_name,
+                'course_name' => $student->course_name,
+                'admission_no' => $student->admission_no,
+                'admission_date' => optional($student->admission_date)->format('Y-m-d'),
+            ];
+        });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Response Serialization Engine
-        |--------------------------------------------------------------------------
-        */
         return response()->json([
             'status' => true,
-            'message' => 'Dashboard business performance metrics fetched successfully.',
             'data' => [
-                // Row 1
-                'total_students' => $totalStudents,
-                'total_inquiries' => $totalInquiries,
 
-                // Row 2
+                'monthly_collections' => $monthlyCollections,
+
+                'courseDistribution' => $courseDistribution,
+                
+                'total_inquiries' => $totalInquiries,
+                'this_month_inquiries' => $thisMonthInquiries,
+
+                'total_students' => $totalStudents,
                 'this_month_admissions' => $thisMonthAdmissions,
+
+                'total_collection' => $totalCollection,
                 'this_month_collection' => $thisMonthCollection,
 
-                // Row 3
-                'last_week_admissions' => $lastWeekAdmissions,
-                'last_week_collection' => $lastWeekCollection,
-
-                // Row 4
-                'today_admissions' => $todayAdmissions,
-                'today_collection' => $todayCollection,
-
-                // Row 5
                 'total_fees' => $totalFees,
-                'paid_fees' => $paidFees,
                 'pending_fees' => $pendingFees,
 
-                // System Alerts & Analytics Tracking
-                'pending_admissions' => $pendingAdmissions,
                 'due_today' => $dueToday,
                 'overdue_students' => $overdueStudents,
 
-                // Feeds
                 'recent_payments' => $recentPayments,
                 'recent_admissions' => $recentAdmissions,
             ]

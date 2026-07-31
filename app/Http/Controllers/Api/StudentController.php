@@ -7,6 +7,7 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -26,6 +27,30 @@ class StudentController extends Controller
 
             'data' => $students
         ]);
+    }
+
+
+    private function generateSerialNo()
+    {
+        return DB::transaction(function () {
+
+            $lastSerial = Student::lockForUpdate()->max('serial_no');
+
+            return ($lastSerial ?? 0) + 1;
+
+        });
+    }
+
+    private function generateAdmissionNo($serialNo)
+    {
+        $prefix = strtoupper(config('app.class_shortname'));
+
+        return sprintf(
+            '%s/%s/%04d',
+            $prefix,
+            now()->format('Y/m/d'),
+            $serialNo
+        );
     }
 
     public function activeStudents()
@@ -106,11 +131,18 @@ class StudentController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $serialNo = $this->generateSerialNo();
+
+        $admissionNo = $this->generateAdmissionNo($serialNo);
+
         $student = Student::create([
 
         'inquiry_id' =>
         $request->inquiry_id,
 
+         'serial_no' => $serialNo,
+
+    
             'full_name' =>
                 $request->full_name,
 
@@ -158,6 +190,9 @@ class StudentController extends Controller
             'admission_date' =>
                 $request->admission_date,
 
+    'admission_no' => $admissionNo,
+    
+
                 'course_uuid' =>
     $request->course_uuid,
 
@@ -178,8 +213,8 @@ class StudentController extends Controller
 'installments' =>
     $request->installments ?? 1,
 
-'admission_no' =>
-    $request->admission_no,
+// 'admission_no' =>
+//     $request->admission_no,
     
             'status' =>
                 $request->status ?? 'active',
@@ -443,8 +478,8 @@ class StudentController extends Controller
                 $request->installments ?? 1,
 
  
-            'admission_no' =>
-                $request->admission_no,
+            // 'admission_no' =>
+            //     $request->admission_no,
 
                         'status' =>
                             $request->status,

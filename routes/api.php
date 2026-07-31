@@ -246,6 +246,8 @@ use App\Http\Controllers\Api\PaymentReportController;
 use App\Http\Controllers\Api\InstituteProfileController;
 use App\Http\Controllers\Api\CredentialController;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -275,7 +277,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('admin')->group(function () {
 
         Route::get('/profile', [AdminAuthController::class, 'profile']);
-
+        Route::post('/change-password', [AdminAuthController::class, 'changePassword']);
         Route::post('/logout', [AdminAuthController::class, 'logout']);
 
     });
@@ -313,7 +315,7 @@ Route::middleware('auth:sanctum')->group(function () {
     | Students
     |--------------------------------------------------------------------------
     */
-
+// 
     Route::post('/students', [StudentController::class, 'store']);
     Route::get('/students', [StudentController::class, 'index']);
     Route::get('/students/active', [StudentController::class, 'activeStudents']);
@@ -344,9 +346,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payments', [PaymentController::class, 'store']);
     Route::put('/payments/{uuid}', [PaymentController::class, 'update']);
     Route::delete('/payments/{uuid}', [PaymentController::class, 'destroy']);
+    Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
+
     Route::get('/payments/{studentUuid}', [PaymentController::class, 'history']);
 
-    Route::get('/payments/due-collections', [DueCollectionController::class, 'index']);
 
     Route::get('/payment-reports', [PaymentReportController::class, 'index']);
     Route::get('/payment-reports/pdf', [PaymentReportController::class, 'downloadPdf']);

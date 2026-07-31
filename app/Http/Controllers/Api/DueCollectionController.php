@@ -11,6 +11,12 @@ class DueCollectionController extends Controller
 {
     public function index(Request $request)
     {
+
+    \Log::info('Due Collection Request', [
+    'user' => auth()->user(),
+    'headers' => request()->headers->all(),
+    ]);
+
         $today = Carbon::today();
 
         // Base query for active students with outstanding balances
@@ -55,6 +61,8 @@ class DueCollectionController extends Controller
             ]
         ]);
     }
+
+
 
     /**
      * Format student collections consistently.
