@@ -24,7 +24,7 @@ use App\Http\Controllers\Api\TeacherApp\AttendanceController as TeacherAppAttend
 use App\Http\Controllers\Api\TeacherApp\AttendanceCalendarController as AttendanceCalendarController; 
 use App\Http\Controllers\Api\TeacherApp\AttendanceHistoryController  ;
 use App\Http\Controllers\Api\TeacherApp\SyllabusController;
-
+use App\Http\Controllers\Api\TeacherApp\ProfileController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -282,6 +282,21 @@ Route::prefix('v2/teacher')->group(function () {
         Route::delete(
             '/batches/{batchUuid}/syllabus/{uuid}',
             [SyllabusController::class, 'destroy']
+        );
+
+        Route::get(
+            '/profile',
+            [ProfileController::class, 'show']
+        );
+
+        Route::put(
+            '/profile',
+            [ProfileController::class, 'update']
+        );
+
+        Route::post(
+            '/change-password',
+            [ProfileController::class, 'changePassword']
         );
 
     });
