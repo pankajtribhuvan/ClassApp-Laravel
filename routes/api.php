@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\TeacherApp\BatchController as TeacherAppBatchContro
 use App\Http\Controllers\Api\TeacherApp\AttendanceController as TeacherAppAttendanceController;
 use App\Http\Controllers\Api\TeacherApp\AttendanceCalendarController as AttendanceCalendarController; 
 use App\Http\Controllers\Api\TeacherApp\AttendanceHistoryController  ;
+use App\Http\Controllers\Api\TeacherApp\SyllabusController;
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -259,6 +261,27 @@ Route::prefix('v2/teacher')->group(function () {
                 AttendanceHistoryController::class,
                 'show',
             ]
+        );
+
+        // Syllabus
+        Route::get(
+            '/batches/{batchUuid}/syllabus',
+            [SyllabusController::class, 'index']
+        );
+
+        Route::post(
+            '/batches/{batchUuid}/syllabus',
+            [SyllabusController::class, 'store']
+        );
+
+        Route::put(
+            '/batches/{batchUuid}/syllabus/{uuid}',
+            [SyllabusController::class, 'update']
+        );
+
+        Route::delete(
+            '/batches/{batchUuid}/syllabus/{uuid}',
+            [SyllabusController::class, 'destroy']
         );
 
     });
