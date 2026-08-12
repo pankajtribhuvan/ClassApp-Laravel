@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->statefulApi();
 
     })
+
+    ->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'v2.role' => \App\Http\Middleware\V2RoleMiddleware::class,
+    ]);
+    })
+    
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

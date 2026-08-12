@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\VideoController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\WebAdmin\VideoController;
+use App\Http\Controllers\WebAdmin\DashboardController;
 
 
 Route::get('/', function () {
