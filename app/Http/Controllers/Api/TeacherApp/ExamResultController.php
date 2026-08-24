@@ -35,6 +35,8 @@ class ExamResultController extends Controller
                     'batch_uuid' => $exam->batch_uuid,
                     'exam_name' => $exam->exam_name,
                     'exam_date' => $exam->exam_date->format('Y-m-d'),
+                    'duration' => $exam->duration,
+                    'out_of' => $exam->out_of,
                     'results' => $exam->results,
                     'created_at' => $exam->created_at,
                     'updated_at' => $exam->updated_at,
@@ -93,6 +95,18 @@ class ExamResultController extends Controller
             'exam_date' => [
                 'required',
                 'date',
+            ],
+
+            'duration' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+
+            'out_of' => [
+                'required',
+                'integer',
+                'min:1',
             ],
 
             'results' => [
@@ -161,6 +175,8 @@ class ExamResultController extends Controller
             'batch_uuid' => $validated['batch_uuid'],
             'exam_name' => $validated['exam_name'],
             'exam_date' => $validated['exam_date'],
+            'duration' => $validated['duration'],
+            'out_of' => $validated['out_of'],
             'results' => $validated['results'],
         ]);
 
@@ -176,6 +192,8 @@ class ExamResultController extends Controller
             'batch_uuid' => $examResult->batch_uuid,
             'exam_name' => $examResult->exam_name,
             'exam_date' => $examResult->exam_date->format('Y-m-d'),
+            'duration' => $examResult->duration,
+            'out_of' => $examResult->out_of,
             'results' => $examResult->results,
             'created_at' => $examResult->created_at,
             'updated_at' => $examResult->updated_at,
@@ -212,6 +230,8 @@ class ExamResultController extends Controller
                 'batch_uuid' => $examResult->batch_uuid,
                 'exam_name' => $examResult->exam_name,
                 'exam_date' => $examResult->exam_date->format('Y-m-d'),
+                'duration' => $examResult->duration,
+                'out_of' => $examResult->out_of,
                 'results' => $examResult->results,
                 'created_at' => $examResult->created_at,
                 'updated_at' => $examResult->updated_at,
@@ -253,6 +273,18 @@ class ExamResultController extends Controller
             'exam_date' => [
                 'required',
                 'date',
+            ],
+
+            'duration' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+
+            'out_of' => [
+                'required',
+                'integer',
+                'min:1',
             ],
 
             'results' => [
@@ -317,6 +349,8 @@ class ExamResultController extends Controller
             'batch_uuid' => $validated['batch_uuid'],
             'exam_name' => $validated['exam_name'],
             'exam_date' => $validated['exam_date'],
+            'duration' => $validated['duration'],
+            'out_of' => $validated['out_of'],
             'results' => $validated['results'],
         ]);
 
@@ -333,6 +367,8 @@ class ExamResultController extends Controller
                     'batch_uuid' => $examResult->batch_uuid,
                     'exam_name' => $examResult->exam_name,
                     'exam_date' => $examResult->exam_date->format('Y-m-d'),
+                    'duration' => $examResult->duration,
+                    'out_of' => $examResult->out_of,
                     'results' => $examResult->results,
                     'created_at' => $examResult->created_at,
                     'updated_at' => $examResult->updated_at,

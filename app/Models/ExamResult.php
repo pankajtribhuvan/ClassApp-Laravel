@@ -15,6 +15,8 @@ class ExamResult extends Model
         'batch_uuid',
         'exam_name',
         'exam_date',
+        'duration',
+        'out_of',
         'results',
     ];
 

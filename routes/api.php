@@ -85,6 +85,8 @@ use App\Http\Controllers\Api\StudentApp\PaymentController
 use App\Http\Controllers\Api\StudentApp\ProfileController
     as StudentProfileController;
 
+use App\Http\Controllers\Api\StudentApp\ExamResultController
+    as StudentExamResultController;
 
 /*
 |--------------------------------------------------------------------------
@@ -801,6 +803,18 @@ Route::prefix('v2/student')
             StudentPaymentController::class,
             'index'
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Exam Results
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/exam-results', [
+            StudentExamResultController::class,
+            'index'
+        ]);
+
 
 
         /*
