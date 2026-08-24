@@ -48,6 +48,7 @@ use App\Http\Controllers\Api\TeacherApp\AttendanceHistoryController;
 use App\Http\Controllers\Api\TeacherApp\SyllabusController;
 
 use App\Http\Controllers\Api\TeacherApp\ProfileController;
+use App\Http\Controllers\Api\TeacherApp\ExamResultController;
 
 
 /*
@@ -654,6 +655,38 @@ Route::prefix('v2/teacher')
             ]
         );
 
+
+        // Exam Results
+        Route::get(
+            '/exam-results',
+            [ExamResultController::class, 'index']
+        );
+
+        Route::get(
+            '/exam-results/{uuid}',
+            [ExamResultController::class, 'show']
+        );
+
+        Route::get(
+            '/batches/{batchUuid}/exam-results/students',
+            [ExamResultController::class, 'students']
+        );
+
+        Route::post(
+            '/exam-results',
+            [ExamResultController::class, 'store']
+        );
+
+        Route::put(
+            '/exam-results/{uuid}',
+            [ExamResultController::class, 'update']
+        );
+
+        Route::delete(
+            '/exam-results/{uuid}',
+            [ExamResultController::class, 'destroy']
+        );
+        
 
         /*
         |--------------------------------------------------------------------------
