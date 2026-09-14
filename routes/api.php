@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\AdminApp\DueCollectionController;
 use App\Http\Controllers\Api\AdminApp\PaymentReportController;
 use App\Http\Controllers\Api\AdminApp\InstituteProfileController;
 use App\Http\Controllers\Api\AdminApp\CredentialController;
+use App\Http\Controllers\Api\AdminApp\ExamResultController as AdminExamResultController;
 
 
 /*
@@ -424,6 +425,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/attendance/monthly-register', [
         AttendanceController::class,
         'monthlyRegister'
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exam Results
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/exam-results', [
+        AdminExamResultController::class,
+        'index'
+    ]);
+
+    Route::get('/exam-results/{uuid}', [
+        AdminExamResultController::class,
+        'show'
     ]);
 
 
