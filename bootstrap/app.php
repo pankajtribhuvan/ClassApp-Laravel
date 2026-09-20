@@ -13,16 +13,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-    $middleware->statefulApi();
+        $middleware->statefulApi();
+
+        $middleware->alias([
+            'v2.role' => \App\Http\Middleware\V2RoleMiddleware::class,
+            'central.license' => \App\Http\Middleware\VerifyCentralLicense::class,
+            'central.license.v2' => \App\Http\Middleware\VerifyV2CentralLicense::class,
+
+        ]);
 
     })
-
-    ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'v2.role' => \App\Http\Middleware\V2RoleMiddleware::class,
-    ]);
-    })
-    
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

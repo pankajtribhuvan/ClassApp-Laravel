@@ -89,6 +89,7 @@ use App\Http\Controllers\Api\StudentApp\ProfileController
 use App\Http\Controllers\Api\StudentApp\ExamResultController
     as StudentExamResultController;
 
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN APP - PUBLIC ROUTES
@@ -105,13 +106,22 @@ Route::prefix('admin')->group(function () {
 });
 
 
+Route::get('/products', [
+    ProductController::class,
+    'index'
+]);
+
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN APP - PROTECTED ROUTES
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    'central.license',
+])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -157,10 +167,10 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/products', [
-        ProductController::class,
-        'index'
-    ]);
+    // Route::get('/products', [
+    //     ProductController::class,
+    //     'index'
+    // ]);
 
 
     /*
@@ -300,7 +310,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'history'
     ]);
 
-
     Route::get('/payment-reports', [
         PaymentReportController::class,
         'index'
@@ -427,6 +436,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'monthlyRegister'
     ]);
 
+
     /*
     |--------------------------------------------------------------------------
     | Exam Results
@@ -521,7 +531,10 @@ Route::prefix('v2')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware([
+        'auth:sanctum',
+        'central.license.v2',
+    ])->group(function () {
 
         Route::get('/me', [
             V2AuthController::class,
@@ -548,6 +561,7 @@ Route::prefix('v2')->group(function () {
 | Teacher-specific routes are protected by:
 |
 | auth:sanctum
+| central.license.v2
 | v2.role:teacher
 |
 */
@@ -555,6 +569,7 @@ Route::prefix('v2')->group(function () {
 Route::prefix('v2/teacher')
     ->middleware([
         'auth:sanctum',
+        'central.license.v2',
         'v2.role:teacher',
     ])
     ->group(function () {
@@ -675,37 +690,60 @@ Route::prefix('v2/teacher')
         );
 
 
-        // Exam Results
+        /*
+        |--------------------------------------------------------------------------
+        | Exam Results
+        |--------------------------------------------------------------------------
+        */
+
         Route::get(
             '/exam-results',
-            [ExamResultController::class, 'index']
+            [
+                ExamResultController::class,
+                'index'
+            ]
         );
 
         Route::get(
             '/exam-results/{uuid}',
-            [ExamResultController::class, 'show']
+            [
+                ExamResultController::class,
+                'show'
+            ]
         );
 
         Route::get(
             '/batches/{batchUuid}/exam-results/students',
-            [ExamResultController::class, 'students']
+            [
+                ExamResultController::class,
+                'students'
+            ]
         );
 
         Route::post(
             '/exam-results',
-            [ExamResultController::class, 'store']
+            [
+                ExamResultController::class,
+                'store'
+            ]
         );
 
         Route::put(
             '/exam-results/{uuid}',
-            [ExamResultController::class, 'update']
+            [
+                ExamResultController::class,
+                'update'
+            ]
         );
 
         Route::delete(
             '/exam-results/{uuid}',
-            [ExamResultController::class, 'destroy']
+            [
+                ExamResultController::class,
+                'destroy'
+            ]
         );
-        
+
 
         /*
         |--------------------------------------------------------------------------
@@ -748,6 +786,7 @@ Route::prefix('v2/teacher')
 | All Student routes require:
 |
 | auth:sanctum
+| central.license.v2
 | v2.role:student
 |
 */
@@ -755,6 +794,7 @@ Route::prefix('v2/teacher')
 Route::prefix('v2/student')
     ->middleware([
         'auth:sanctum',
+        'central.license.v2',
         'v2.role:student',
     ])
     ->group(function () {
@@ -821,6 +861,7 @@ Route::prefix('v2/student')
             'index'
         ]);
 
+
         /*
         |--------------------------------------------------------------------------
         | Exam Results
@@ -831,7 +872,6 @@ Route::prefix('v2/student')
             StudentExamResultController::class,
             'index'
         ]);
-
 
 
         /*
