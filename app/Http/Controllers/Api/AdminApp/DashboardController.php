@@ -1,19 +1,33 @@
 <?php
 
 namespace App\Http\Controllers\Api\AdminApp;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+
 use App\Http\Controllers\Controller;
 use App\Models\Inquiry;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Services\CentralLicenseService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index(): JsonResponse
-    {
+    public function index(
+        CentralLicenseService $centralLicenseService
+    ): JsonResponse {
         $today = now()->toDateString();
+
+        // ==========================
+        // Central License
+        // ==========================
+
+        $licenseResponse = $centralLicenseService->verify(
+            '1.0.0',
+            'v1'
+        );
+
+        $licenseData = $licenseResponse['data'] ?? [];
 
         // ==========================
         // Inquiry
@@ -27,8 +41,14 @@ class DashboardController extends Controller
 
             $date = Carbon::now()->subMonths($i);
 
-            $amount = Payment::whereYear('payment_date', $date->year)
-                ->whereMonth('payment_date', $date->month)
+            $amount = Payment::whereYear(
+                    'payment_date',
+                    $date->year
+                )
+                ->whereMonth(
+                    'payment_date',
+                    $date->month
+                )
                 ->sum('amount');
 
             $monthlyCollections->push([
@@ -37,10 +57,15 @@ class DashboardController extends Controller
             ]);
         }
 
-        $thisMonthInquiries = Inquiry::whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
+        $thisMonthInquiries = Inquiry::whereYear(
+                'created_at',
+                now()->year
+            )
+            ->whereMonth(
+                'created_at',
+                now()->month
+            )
             ->count();
-
 
         // ==========================
         // Students
@@ -55,8 +80,14 @@ class DashboardController extends Controller
         $totalStudents = (clone $studentQuery)->count();
 
         $thisMonthAdmissions = (clone $studentQuery)
-            ->whereYear('admission_date', now()->year)
-            ->whereMonth('admission_date', now()->month)
+            ->whereYear(
+                'admission_date',
+                now()->year
+            )
+            ->whereMonth(
+                'admission_date',
+                now()->month
+            )
             ->count();
 
         // ==========================
@@ -66,8 +97,14 @@ class DashboardController extends Controller
         $totalCollection = (clone $studentQuery)
             ->sum('paid_fees');
 
-        $thisMonthCollection = (double) Payment::whereYear('payment_date', now()->year)
-            ->whereMonth('payment_date', now()->month)
+        $thisMonthCollection = (double) Payment::whereYear(
+                'payment_date',
+                now()->year
+            )
+            ->whereMonth(
+                'payment_date',
+                now()->month
+            )
             ->sum('amount');
 
         $totalFees = (clone $studentQuery)
@@ -113,15 +150,22 @@ class DashboardController extends Controller
                 'students.admission_no',
             ]);
 
-
-       // ==========================
-        // Course Distribution for Last 6 Months (Pie Chart)
+        // ==========================
+        // Course Distribution
+        // Last 6 Months
         // ==========================
 
         $courseDistribution = (clone $studentQuery)
-            ->select('course_name', DB::raw('count(*) as total'))
+            ->select(
+                'course_name',
+                DB::raw('count(*) as total')
+            )
             ->whereNotNull('course_name')
-            ->where('admission_date', '>=', now()->subMonths(6)->startOfMonth())
+            ->where(
+                'admission_date',
+                '>=',
+                now()->subMonths(6)->startOfMonth()
+            )
             ->groupBy('course_name')
             ->get()
             ->map(function ($item) {
@@ -130,51 +174,102 @@ class DashboardController extends Controller
                     'count' => (int) $item->total,
                 ];
             });
-            
+
         // ==========================
         // Recent Admissions
         // ==========================
 
-       $recentAdmissions = (clone $studentQuery)
-        ->latest('admission_date')
-        ->take(5)
-        ->get()
-        ->map(function ($student) {
-            return [
-                'uuid' => $student->uuid,
-                'full_name' => $student->full_name,
-                'course_name' => $student->course_name,
-                'admission_no' => $student->admission_no,
-                'admission_date' => optional($student->admission_date)->format('Y-m-d'),
-            ];
-        });
+        $recentAdmissions = (clone $studentQuery)
+            ->latest('admission_date')
+            ->take(5)
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'uuid' => $student->uuid,
+                    'full_name' => $student->full_name,
+                    'course_name' => $student->course_name,
+                    'admission_no' => $student->admission_no,
+                    'admission_date' => optional(
+                        $student->admission_date
+                    )->format('Y-m-d'),
+                ];
+            });
+
+        // ==========================
+        // Response
+        // ==========================
 
         return response()->json([
             'status' => true,
+
             'data' => [
 
-                'monthly_collections' => $monthlyCollections,
+                // ==========================
+                // Existing Dashboard Data
+                // ==========================
 
-                'courseDistribution' => $courseDistribution,
-                
-                'total_inquiries' => $totalInquiries,
-                'this_month_inquiries' => $thisMonthInquiries,
+                'monthly_collections' =>
+                    $monthlyCollections,
 
-                'total_students' => $totalStudents,
-                'this_month_admissions' => $thisMonthAdmissions,
+                'courseDistribution' =>
+                    $courseDistribution,
 
-                'total_collection' => $totalCollection,
-                'this_month_collection' => $thisMonthCollection,
+                'total_inquiries' =>
+                    $totalInquiries,
 
-                'total_fees' => $totalFees,
-                'pending_fees' => $pendingFees,
+                'this_month_inquiries' =>
+                    $thisMonthInquiries,
 
-                'due_today' => $dueToday,
-                'overdue_students' => $overdueStudents,
+                'total_students' =>
+                    $totalStudents,
 
-                'recent_payments' => $recentPayments,
-                'recent_admissions' => $recentAdmissions,
-            ]
+                'this_month_admissions' =>
+                    $thisMonthAdmissions,
+
+                'total_collection' =>
+                    $totalCollection,
+
+                'this_month_collection' =>
+                    $thisMonthCollection,
+
+                'total_fees' =>
+                    $totalFees,
+
+                'pending_fees' =>
+                    $pendingFees,
+
+                'due_today' =>
+                    $dueToday,
+
+                'overdue_students' =>
+                    $overdueStudents,
+
+                'recent_payments' =>
+                    $recentPayments,
+
+                'recent_admissions' =>
+                    $recentAdmissions,
+
+                // ==========================
+                // Central License Data
+                // ==========================
+
+                'customer' =>
+                $licenseData['customer'] ?? null,
+
+
+                'license' =>
+                    $licenseData['license'] ?? null,
+
+                'subscription' =>
+                    $licenseData['subscription'] ?? null,
+
+                'plan' =>
+                    $licenseData['plan'] ?? null,
+
+                'license_status' =>
+                    $licenseData['license_status'] ?? null,
+            ],
         ]);
     }
 }
